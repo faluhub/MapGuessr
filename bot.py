@@ -16,7 +16,7 @@ location: maps.Location = None
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
-    bot.change_presence(activity=discord.Game("Country Challenge", timestamps={"end": datetime.now() + timedelta(minutes=30)}))
+    await bot.change_presence(activity=discord.Game("Country Challenge", timestamps={"end": datetime.now() + timedelta(minutes=30)}))
     global location
     channels = Guild.get_all_channels()
     if len(channels) == 0:
