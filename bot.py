@@ -6,7 +6,10 @@ from database.classes import User, Guild
 from datetime import datetime
 
 dotenv.load_dotenv()
-bot = discord.AutoShardedBot(intents=discord.Intents.default(), debug_guilds=[1018128160962904114])
+bot = discord.AutoShardedBot(
+    intents=discord.Intents.default(),
+    # debug_guilds=[1018128160962904114]
+)
 start = datetime.now()
 
 location: maps.Location = None
