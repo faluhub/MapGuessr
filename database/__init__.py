@@ -3,7 +3,7 @@ from mysql import connector
 from mysql.connector.abstracts import MySQLCursorAbstract
 
 schemas = [
-    "CREATE SCHEMA `MapGuessr` DEFAULT CHARACTER SET utf8mb4"
+    "CREATE SCHEMA `mapguessr` DEFAULT CHARACTER SET utf8mb4"
 ]
 
 tables = [
