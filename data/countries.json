@@ -1,0 +1,494 @@
+[
+    {
+        "id": 77,
+        "name": "Albania",
+        "code": "al",
+        "inside": false
+    },
+    {
+        "id": 36,
+        "name": "Estonia",
+        "code": "ee",
+        "inside": true
+    },
+    {
+        "id": 46,
+        "name": "Lesotho",
+        "code": "ls",
+        "inside": false
+    },
+    {
+        "id": 80,
+        "name": "Senegal",
+        "code": "sn",
+        "inside": false
+    },
+    {
+        "id": 38,
+        "name": "Andorra",
+        "code": "ad",
+        "inside": true
+    },
+    {
+        "id": 4,
+        "name": "Finland",
+        "code": "fi",
+        "inside": false
+    },
+    {
+        "id": 43,
+        "name": "Lithuania",
+        "code": "lt",
+        "inside": true
+    },
+    {
+        "id": 55,
+        "name": "Serbia",
+        "code": "rs",
+        "inside": true
+    },
+    {
+        "id": 25,
+        "name": "Antarctica",
+        "code": "aq",
+        "inside": false
+    },
+    {
+        "id": 5,
+        "name": "France",
+        "code": "fr",
+        "inside": true
+    },
+    {
+        "id": 61,
+        "name": "Luxembourg",
+        "code": "lu",
+        "inside": true
+    },
+    {
+        "id": 15,
+        "name": "Singapore",
+        "code": "sg",
+        "inside": true
+    },
+    {
+        "id": 58,
+        "name": "Argentina",
+        "code": "ar",
+        "inside": true
+    },
+    {
+        "id": 27,
+        "name": "Germany",
+        "code": "de",
+        "inside": true
+    },
+    {
+        "id": 9,
+        "name": "Macau",
+        "code": "mo",
+        "inside": true
+    },
+    {
+        "id": 41,
+        "name": "Slovakia",
+        "code": "sk",
+        "inside": true
+    },
+    {
+        "id": 22,
+        "name": "Australia",
+        "code": "au",
+        "inside": true
+    },
+    {
+        "id": 79,
+        "name": "Ghana",
+        "code": "gh",
+        "inside": false
+    },
+    {
+        "id": 69,
+        "name": "Macedonia",
+        "code": "mk",
+        "inside": true
+    },
+    {
+        "id": 53,
+        "name": "Slovenia",
+        "code": "si",
+        "inside": true
+    },
+    {
+        "id": 63,
+        "name": "Bangladesh",
+        "code": "bd",
+        "inside": true
+    },
+    {
+        "id": 54,
+        "name": "Greece",
+        "code": "gr",
+        "inside": true
+    },
+    {
+        "id": 65,
+        "name": "Madagascar",
+        "code": "mg",
+        "inside": false
+    },
+    {
+        "id": 16,
+        "name": "Spain",
+        "code": "es",
+        "inside": true
+    },
+    {
+        "id": 29,
+        "name": "Belgium",
+        "code": "be",
+        "inside": true
+    },
+    {
+        "id": 64,
+        "name": "Greenland",
+        "code": "gl",
+        "inside": false
+    },
+    {
+        "id": 59,
+        "name": "Malaysia",
+        "code": "my",
+        "inside": true
+    },
+    {
+        "id": 74,
+        "name": "Sri Lanka",
+        "code": "lk",
+        "inside": true
+    },
+    {
+        "id": 67,
+        "name": "Bermuda",
+        "code": "bm",
+        "inside": true
+    },
+    {
+        "id": 83,
+        "name": "Guatamala",
+        "code": "gt",
+        "inside": false
+    },
+    {
+        "id": 82,
+        "name": "Malta",
+        "code": "mt",
+        "inside": false
+    },
+    {
+        "id": 51,
+        "name": "Eswatini",
+        "code": "sz",
+        "inside": false
+    },
+    {
+        "id": 60,
+        "name": "Bhutan",
+        "code": "bt",
+        "inside": false
+    },
+    {
+        "id": 6,
+        "name": "Hong Kong",
+        "code": "hk",
+        "inside": true
+    },
+    {
+        "id": 26,
+        "name": "Mexico",
+        "code": "mx",
+        "inside": true
+    },
+    {
+        "id": 17,
+        "name": "Sweden",
+        "code": "se",
+        "inside": true
+    },
+    {
+        "id": 72,
+        "name": "Bolivia",
+        "code": "bo",
+        "inside": false
+    },
+    {
+        "id": 10,
+        "name": "Netherlands",
+        "code": "nl",
+        "inside": true
+    },
+    {
+        "id": 66,
+        "name": "Mongolia",
+        "code": "mn",
+        "inside": true
+    },
+    {
+        "id": 18,
+        "name": "Switzerland",
+        "code": "ch",
+        "inside": true
+    },
+    {
+        "id": 42,
+        "name": "Botswana",
+        "code": "bw",
+        "inside": false
+    },
+    {
+        "id": 45,
+        "name": "Hungary",
+        "code": "hu",
+        "inside": true
+    },
+    {
+        "id": 78,
+        "name": "Montenegro",
+        "code": "me",
+        "inside": true
+    },
+    {
+        "id": 19,
+        "name": "Taiwan",
+        "code": "tw",
+        "inside": true
+    },
+    {
+        "id": 23,
+        "name": "Brazil",
+        "code": "br",
+        "inside": true
+    },
+    {
+        "id": 50,
+        "name": "Iceland",
+        "code": "is",
+        "inside": true
+    },
+    {
+        "id": 11,
+        "name": "Norway",
+        "code": "no",
+        "inside": true
+    },
+    {
+        "id": 33,
+        "name": "Thailand",
+        "code": "th",
+        "inside": true
+    },
+    {
+        "id": 44,
+        "name": "Bulgaria",
+        "code": "bg",
+        "inside": true
+    },
+    {
+        "id": 56,
+        "name": "Indonesia",
+        "code": "id",
+        "inside": true
+    },
+    {
+        "id": 12,
+        "name": "New Zealand",
+        "code": "nz",
+        "inside": true
+    },
+    {
+        "id": 81,
+        "name": "Tunisia",
+        "code": "tn",
+        "inside": false
+    },
+    {
+        "id": 57,
+        "name": "Cambodia",
+        "code": "kh",
+        "inside": true
+    },
+    {
+        "id": 24,
+        "name": "Ireland",
+        "code": "ie",
+        "inside": true
+    },
+    {
+        "id": 47,
+        "name": "Peru",
+        "code": "pe",
+        "inside": false
+    },
+    {
+        "id": 71,
+        "name": "Turkey",
+        "code": "tr",
+        "inside": true
+    },
+    {
+        "id": 1,
+        "name": "Canada",
+        "code": "ca",
+        "inside": true
+    },
+    {
+        "id": 68,
+        "name": "Philippines",
+        "code": "ph",
+        "inside": true
+    },
+    {
+        "id": 62,
+        "name": "United Arab Emirates",
+        "code": "ae",
+        "inside": true
+    },
+    {
+        "id": 39,
+        "name": "Chile",
+        "code": "cl",
+        "inside": true
+    },
+    {
+        "id": 34,
+        "name": "Israel",
+        "code": "il",
+        "inside": true
+    },
+    {
+        "id": 32,
+        "name": "Poland",
+        "code": "pl",
+        "inside": true
+    },
+    {
+        "id": 70,
+        "name": "Uganda",
+        "code": "ug",
+        "inside": false
+    },
+    {
+        "id": 48,
+        "name": "Colombia",
+        "code": "co",
+        "inside": true
+    },
+    {
+        "id": 7,
+        "name": "Italy",
+        "code": "it",
+        "inside": true
+    },
+    {
+        "id": 13,
+        "name": "Portugal",
+        "code": "pt",
+        "inside": true
+    },
+    {
+        "id": 20,
+        "name": "United Kingdom",
+        "code": "gb",
+        "inside": true
+    },
+    {
+        "id": 40,
+        "name": "Croatia",
+        "code": "hr",
+        "inside": true
+    },
+    {
+        "id": 8,
+        "name": "Japan",
+        "code": "jp",
+        "inside": true
+    },
+    {
+        "id": 28,
+        "name": "Romania",
+        "code": "ro",
+        "inside": true
+    },
+    {
+        "id": 35,
+        "name": "Ukraine",
+        "code": "ua",
+        "inside": true
+    },
+    {
+        "id": 2,
+        "name": "Czechia",
+        "code": "cz",
+        "inside": true
+    },
+    {
+        "id": 75,
+        "name": "Kyrgyzstan",
+        "code": "kg",
+        "inside": false
+    },
+    {
+        "id": 31,
+        "name": "Russia",
+        "code": "ru",
+        "inside": true
+    },
+    {
+        "id": 73,
+        "name": "Uruguay",
+        "code": "uy",
+        "inside": true
+    },
+    {
+        "id": 3,
+        "name": "Denmark",
+        "code": "dk",
+        "inside": true
+    },
+    {
+        "id": 76,
+        "name": "Laos",
+        "code": "la",
+        "inside": false
+    },
+    {
+        "id": 14,
+        "name": "South Africa",
+        "code": "za",
+        "inside": true
+    },
+    {
+        "id": 21,
+        "name": "United States of America",
+        "code": "us",
+        "inside": true
+    },
+    {
+        "id": 49,
+        "name": "Ecuador",
+        "code": "ec",
+        "inside": true
+    },
+    {
+        "id": 37,
+        "name": "Latvia",
+        "code": "lv",
+        "inside": true
+    },
+    {
+        "id": 30,
+        "name": "South Korea",
+        "code": "kr",
+        "inside": true
+    }
+]
