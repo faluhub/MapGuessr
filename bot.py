@@ -1,4 +1,4 @@
-import discord, os, dotenv, maps, time
+import discord, os, dotenv, maps, traceback
 from discord import ApplicationContext, option
 from discord.ext import tasks
 from discord.utils import basic_autocomplete
@@ -32,7 +32,7 @@ async def challenge_loop():
         try:
             return await channel.send(embed=embed, file=discord.File(path))
         except:
-            continue
+            traceback.print_exc()
 
 @bot.event
 async def on_connect():
