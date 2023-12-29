@@ -10,20 +10,20 @@ class User:
     def create(self, guesses: int, correct: int, has_guessed: bool=False):
         update(f"INSERT INTO `mapguessr`.`users` (`user_id`, `guesses`, `correct`, `has_guessed`) VALUES ('{self.user_id}', '{guesses}', '{correct}', '{1 if has_guessed else 0}')")
 
-    def get_guesses(self):
-        return select(f"SELECT `guesses` FROM `mapguessr`.`users` WHERE user_id = '{self.user_id}'").value
+    def get_guesses(self) -> int:
+        return int(select(f"SELECT `guesses` FROM `mapguessr`.`users` WHERE user_id = '{self.user_id}'").value)
     
-    def get_correct(self):
-        return select(f"SELECT `correct` FROM `mapguessr`.`users` WHERE user_id = '{self.user_id}'").value
+    def get_correct(self) -> int:
+        return int(select(f"SELECT `correct` FROM `mapguessr`.`users` WHERE user_id = '{self.user_id}'").value)
 
     def increment_guesses(self, correct: bool):
         if self.exists():
             guesses = self.get_guesses() + 1
-            update = f"`guesses` = '{guesses}'"
+            add = f"`guesses` = '{guesses}'"
             if correct:
                 correct_amt = self.get_correct() + 1
-                update += f", `correct` = '{correct_amt}'"
-            update(f"UPDATE `mapguessr`.`users` SET {update}, `has_guessed` = '1' WHERE `user_id` = '{self.user_id}'")
+                add += f", `correct` = '{correct_amt}'"
+            update(f"UPDATE `mapguessr`.`users` SET {add}, `has_guessed` = '1' WHERE `user_id` = '{self.user_id}'")
         else:
             self.create(1, 1 if correct else 0, 1)
 
