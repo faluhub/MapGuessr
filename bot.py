@@ -16,11 +16,10 @@ location: maps.Location = None
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
-    global location
+    User.reset_guessed()
     channels = Guild.get_all_channels()
-    if len(channels) == 0:
-        return
     path = "./data/challenge.jpg"
+    global location
     location = maps.gen_country()
     location.image.save(path, format="jpeg")
     embed = discord.Embed(
