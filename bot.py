@@ -1,4 +1,4 @@
-import discord, os, dotenv, maps
+import discord, os, dotenv, maps, time
 from discord import ApplicationContext, option
 from discord.ext import tasks
 from discord.utils import basic_autocomplete
@@ -16,7 +16,6 @@ location: maps.Location = None
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
-    await bot.change_presence(activity=discord.Game("Country Challenge", timestamps={"end": datetime.now() + timedelta(minutes=30)}))
     global location
     channels = Guild.get_all_channels()
     if len(channels) == 0:
