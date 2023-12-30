@@ -30,7 +30,7 @@ async def challenge_loop():
     for channel_id in channels:
         channel = bot.get_channel(channel_id)
         try:
-            return await channel.send(embed=embed, file=discord.File(path))
+            await channel.send(embed=embed, file=discord.File(path))
         except:
             traceback.print_exc()
 
