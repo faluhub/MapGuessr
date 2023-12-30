@@ -37,6 +37,15 @@ async def challenge_loop():
         except:
             traceback.print_exc()
 
+@tasks.loop(seconds=10)
+async def status_loop():
+    if challenge_loop.next_iteration is None:
+        return
+    diff: timedelta = challenge_loop.next_iteration.replace(tzinfo=None) - datetime.now()
+    hours = diff.seconds / 60 > 60
+    value = max(0, int(round(diff.seconds / 60 / 60 if hours else diff.seconds / 60)))
+    await bot.change_presence(activity=discord.Game(f"{value} {'Hour' if hours else 'Minute'}{'s' if not value == 1 else ''} Left..."))
+
 @bot.event
 async def on_connect():
     await bot.register_commands()
@@ -47,6 +56,7 @@ async def on_connect():
 @bot.event
 async def on_ready():
     challenge_loop.start()
+    status_loop.start()
     print(f"Ready, took {(datetime.now() - start).seconds} seconds.")
 
 @bot.slash_command(name="guess", description="Make your guess")

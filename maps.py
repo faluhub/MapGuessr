@@ -1,5 +1,5 @@
-import requests, random, json, streetview, os, dotenv
-from PIL.Image import Image
+import requests, random, json, streetview, os, dotenv, projection
+from PIL import Image
 
 dotenv.load_dotenv()
 
@@ -7,33 +7,41 @@ countries = json.load(open("./data/countries.json"))
 api_key = os.environ["GOOGLE_API_KEY"]
 
 class Location:
-    def __init__(self, country: str, image: Image) -> None:
+    def __init__(self, country: str, image: Image.Image) -> None:
         self.country = country
         self.image = image
 
-def get_positions(country: int, inside: bool):
-    url = f"https://www.mapcrunch.com/_r/?c={country}&d=1&i={1 if inside else 0}"
+def add_compass(pano: Image.Image, heading: float):
+    base = Image.new(mode="RGBA", size=(64, 64))
+    compass = Image.open("./data/compass.png")
+    compass = compass.rotate(heading)
+    bg = Image.open("./data/compass_bg.png")
+    bg = bg.resize(size=(50, 50))
+    base.paste(bg, (6, 6), bg.convert("RGBA"))
+    base.paste(compass, (0, 0), compass.convert("RGBA"))
+    base = base.resize(size=(80, 80))
+    pano.paste(base, (10, 10), base.convert("RGBA"))
+    return pano
+
+def get_positions(country: int):
+    url = f"https://www.mapcrunch.com/_r/?c={country}&d=1&i=0"
     text = requests.get(url).text
     return json.loads(text.replace("while(1);", ""))["points"]
 
 def get_panorama(lat: float, lon: float):
-    results = streetview.search_panoramas(lat, lon)
+    results = streetview.panoids(lat=lat, lon=lon)
     if len(results) == 0:
         return None
-    panorama = results[0]
-    return streetview.get_streetview(
-        width=1080,
-        height=1080,
-        pano_id=panorama.pano_id,
-        api_key=api_key,
-        heading=panorama.heading,
-        pitch=0
-    )
+    panorama = {'panoid': 'hEHAJ9SrLhjTeYmmz92TkQ', 'lat': 15.47088874353598, 'lon': -90.38136989038406, 'heading': 181.3594970703125, 'tilt': 86.67817687988281, 'roll': 358.681640625, 'year': 2016, 'month': 8}
+    print(panorama)
+    pano_img = streetview.download_panorama(panoid=panorama["panoid"])
+    projected = projection.Equirectangular(pano_img).get_perspective(100, panorama["heading"] - 180, -10, 1920, 1080)
+    return add_compass(projected, panorama["heading"])
 
 def gen_country():
-    country = countries[random.randint(0, len(countries))]
+    country = countries[random.randint(0, len(countries) - 1)]
     while True:
-        positions = get_positions(country["id"], country["inside"])
+        positions = get_positions(country["id"])
         for pos in positions:
             panorama = get_panorama(float(pos[0]), float(pos[1]))
             if not panorama is None:
