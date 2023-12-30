@@ -20,11 +20,14 @@ async def challenge_loop():
     channels = Guild.get_all_channels()
     path = "./data/challenge.jpg"
     global location
+    last = ""
+    if not location is None:
+        last = f"\nThe last country was `{location.country}`."
     location = maps.gen_country()
     location.image.save(path, format="jpeg")
     embed = discord.Embed(
         title="New Country",
-        description="Make your guess using `/guess`!",
+        description="Make your guess using `/guess`!" + last,
         color=discord.Color.green()
     )
     for channel_id in channels:
