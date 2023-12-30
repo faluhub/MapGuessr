@@ -14,7 +14,7 @@ start = datetime.now()
 
 location: maps.Location = None
 
-@tasks.loop(hours=6)
+@tasks.loop(hours=2)
 async def challenge_loop():
     User.reset_guessed()
     channels = Guild.get_all_channels()
