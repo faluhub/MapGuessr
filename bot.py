@@ -89,6 +89,12 @@ async def user_cmd(ctx: ApplicationContext, member: discord.Member):
     await ctx.defer()
     user = ctx.author if member is None else member
     user_db = User(user.id)
+    if not user_db.exists():
+        embed = discord.Embed(
+            description="This user hasn't played yet.",
+            color=discord.Color.red()
+        )
+        return await ctx.followup.send(embed=embed)
     guesses = user_db.get_guesses()
     correct = user_db.get_correct()
     rate = round(correct / guesses * 100, 1)
