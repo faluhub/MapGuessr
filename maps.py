@@ -32,7 +32,7 @@ def get_panorama(lat: float, lon: float):
     results = streetview.panoids(lat=lat, lon=lon)
     if len(results) == 0:
         return None
-    panorama = {'panoid': 'hEHAJ9SrLhjTeYmmz92TkQ', 'lat': 15.47088874353598, 'lon': -90.38136989038406, 'heading': 181.3594970703125, 'tilt': 86.67817687988281, 'roll': 358.681640625, 'year': 2016, 'month': 8}
+    panorama = results[0]
     print(panorama)
     pano_img = streetview.download_panorama(panoid=panorama["panoid"])
     projected = projection.Equirectangular(pano_img).get_perspective(100, panorama["heading"] - 180, -10, 1920, 1080)
