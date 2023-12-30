@@ -33,7 +33,6 @@ def get_panorama(lat: float, lon: float):
     if len(results) == 0:
         return None
     panorama = results[0]
-    print(panorama)
     pano_img = streetview.download_panorama(panoid=panorama["panoid"])
     projected = projection.Equirectangular(pano_img).get_perspective(100, panorama["heading"] - 180, -10, 1920, 1080)
     return add_compass(projected, panorama["heading"])
