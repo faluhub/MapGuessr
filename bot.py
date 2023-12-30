@@ -14,7 +14,7 @@ start = datetime.now()
 
 location: maps.Location = None
 
-@tasks.loop(minutes=30)
+@tasks.loop(hours=6)
 async def challenge_loop():
     User.reset_guessed()
     channels = Guild.get_all_channels()
@@ -60,7 +60,7 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
         return await ctx.followup.send("There is no country to guess right now!")
     if user_db.has_guessed():
         return await ctx.followup.send("You've already made a guess for this location!")
-    correct = location.country == country
+    correct = location.country.lower() == country.lower()
     user_db.increment_guesses(correct)
     embed = None
     if correct:
