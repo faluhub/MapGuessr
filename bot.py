@@ -30,20 +30,19 @@ async def challenge_loop():
     last = ""
     if not location is None:
         last = f"\nThe last country was `{location.country}`."
-
-    total_guesses = Guess.get_total_guesses()
-    guesses = Guess.get_all_guesses()
-    if not total_guesses is None and not guesses is None:
-        if not len(last) == 0:
-            last += "\n\n"
-        last += "*Top 5 guessed countries from last challenge:*\n"
-        rank = 0
-        for guess in guesses:
-            rank += 1
-            country, amount = guess
-            rate = amount / total_guesses * 100
-            emoji = "✅" if country.lower() == location.country.lower() else "❌"
-            last += f"**{rank}.** *{country.capitalize()}* {emoji} - `{amount}` *({rate}%)*\n"
+        total_guesses = Guess.get_total_guesses()
+        guesses = Guess.get_all_guesses()
+        if not total_guesses is None and not guesses is None:
+            if not len(last) == 0:
+                last += "\n\n"
+            last += "*Top 5 guessed countries from last challenge:*\n"
+            rank = 0
+            for guess in guesses:
+                rank += 1
+                country, amount = guess
+                rate = amount / total_guesses * 100
+                emoji = "✅" if country.lower() == location.country.lower() else "❌"
+                last += f"**{rank}.** *{country.capitalize()}* {emoji} - `{amount}` *({rate}%)*\n"
 
     User.reset_guessed()
     Guess.clear_guesses()
