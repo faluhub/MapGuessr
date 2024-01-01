@@ -7,9 +7,10 @@ countries = json.load(open("./data/countries.json"))
 api_key = os.environ["GOOGLE_API_KEY"]
 
 class Location:
-    def __init__(self, country: str, image: Image.Image) -> None:
+    def __init__(self, country: str, image: Image.Image, year: int) -> None:
         self.country = country
         self.image = image
+        self.year = year
 
 def add_compass(pano: Image.Image, heading: float):
     base = Image.new(mode="RGBA", size=(64, 64))
@@ -39,7 +40,7 @@ def get_panorama(lat: float, lon: float):
                 panorama = p
     pano_img = streetview.download_panorama(panoid=panorama["panoid"])
     projected = projection.Equirectangular(pano_img).get_perspective(100, panorama["heading"] - 180, -10, 1920, 1080)
-    return add_compass(projected, panorama["heading"])
+    return add_compass(projected, panorama["heading"]), panorama["year"]
 
 def gen_country():
     country = countries[random.randint(0, len(countries) - 1)]
@@ -48,9 +49,7 @@ def gen_country():
         for pos in positions:
             panorama = get_panorama(float(pos[0]), float(pos[1]))
             if not panorama is None:
-                return Location(country["name"], panorama)
+                return Location(country["name"], panorama[0], panorama[1])
 
 def get_country_names():
     return [country["name"] for country in countries]
-
-gen_country()

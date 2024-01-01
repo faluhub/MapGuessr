@@ -13,29 +13,38 @@ bot = discord.AutoShardedBot(
 start = datetime.now()
 
 location: maps.Location = None
+generating = False
+generated_at = None
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
+    global location, generating, generated_at
+    if generating:
+        return
+    generating = True
     User.reset_guessed()
     channels = Guild.get_all_channels()
     path = "./data/challenge.jpg"
-    global location
     last = ""
     if not location is None:
         last = f"\nThe last country was `{location.country}`."
     location = maps.gen_country()
+    generated_at = datetime.now()
     location.image.save(path, format="jpeg")
     embed = discord.Embed(
-        title="New Country",
+        title="Country Challenge",
         description="Make your guess using `/guess`!" + last,
-        color=discord.Color.green()
+        color=discord.Color.green(),
+        timestamp=generated_at
     )
+    embed.set_footer(text=f"Google ©️{location.year}")
     for channel_id in channels:
         channel = bot.get_channel(channel_id)
         try:
             await channel.send(embed=embed, file=discord.File(path))
         except:
             traceback.print_exc()
+    generating = False
 
 @tasks.loop(seconds=10)
 async def status_loop():
@@ -45,7 +54,7 @@ async def status_loop():
     hours = diff.seconds / 60 > 60
     value = max(0, int(round(diff.seconds / 60 / 60 if hours else diff.seconds / 60)))
     message = f"{value} {'Hour' if hours else 'Minute'}{'s' if not value == 1 else ''} Left..." if not value == 0 else "Generating New Challenge..."
-    await bot.change_presence(activity=discord.Game(message))
+    return await bot.change_presence(activity=discord.Game(message))
 
 @bot.event
 async def on_connect():
@@ -79,7 +88,7 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
     embed = None
     if correct:
         embed = discord.Embed(
-            description=f"{country} is correct!\nYou now have {user_db.get_correct()} total correct guesses!",
+            description=f"`{country}` is correct!\nYou now have {user_db.get_correct()} total correct guesses!",
             color=discord.Color.green()
         )
     else:
@@ -88,6 +97,25 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
             color=discord.Color.red()
         )
     await ctx.followup.send(embed=embed)
+
+@bot.slash_command(name="send", description="Re-send the ongoing challenge")
+async def send_cmd(ctx: ApplicationContext):
+    global generating, generated_at
+    await ctx.defer()
+    if generating:
+        embed = discord.Embed(
+            description="A new challenge is being generated right now, so you cannot use this command.",
+            color=discord.Color.red()
+        )
+        return await ctx.followup.send(embed=embed)
+    embed = discord.Embed(
+        title="Country Challenge",
+        description="Make your guess using `/guess`!",
+        color=discord.Color.green(),
+        timestamp=generated_at
+    )
+    embed.set_footer(text=f"Google ©️{location.year}")
+    return await ctx.followup.send(embed=embed, file=discord.File("./data/challenge.jpg"))
 
 @bot.slash_command(name="user", description="View a user's stats")
 @option(
@@ -110,7 +138,7 @@ async def user_cmd(ctx: ApplicationContext, member: discord.Member):
     correct = user_db.get_correct()
     rate = round(correct / guesses * 100, 1)
     embed = discord.Embed(color=discord.Color.green())
-    embed.set_author(name=user.name, icon_url=user.avatar.url)
+    embed.set_author(name=user.name, icon_url=None if user.avatar is None else user.avatar.url)
     embed.add_field(name="Guesses Made:", value=f"`{guesses}`", inline=False)
     embed.add_field(name="Correct Guesses:", value=f"`{correct}`", inline=False)
     embed.add_field(name="Success Rate:", value=f"`{rate}%`", inline=False)
