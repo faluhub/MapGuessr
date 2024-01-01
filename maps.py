@@ -32,7 +32,11 @@ def get_panorama(lat: float, lon: float):
     results = streetview.panoids(lat=lat, lon=lon)
     if len(results) == 0:
         return None
-    panorama = results[0]
+    panorama = None
+    for p in results:
+        if "year" in p:
+            if panorama is None or int(p["year"]) > int(panorama["year"]):
+                panorama = p
     pano_img = streetview.download_panorama(panoid=panorama["panoid"])
     projected = projection.Equirectangular(pano_img).get_perspective(100, panorama["heading"] - 180, -10, 1920, 1080)
     return add_compass(projected, panorama["heading"])
@@ -48,3 +52,5 @@ def gen_country():
 
 def get_country_names():
     return [country["name"] for country in countries]
+
+gen_country()
