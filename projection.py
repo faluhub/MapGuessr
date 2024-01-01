@@ -32,6 +32,7 @@ class Equirectangular:
         [self._height, self._width, _] = self._img.shape
 
     def get_perspective(self, FOV, THETA, PHI, width, height):
+        THETA = max(-90, min(90, THETA))
         f = 0.5 * width * 1 / np.tan(0.5 * FOV / 180.0 * np.pi)
         cx = (width - 1) / 2.0
         cy = (height - 1) / 2.0

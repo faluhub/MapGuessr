@@ -46,6 +46,7 @@ def gen_country():
     country = countries[random.randint(0, len(countries) - 1)]
     while True:
         positions = get_positions(country["id"])
+        random.shuffle(positions)
         for pos in positions:
             panorama = get_panorama(float(pos[0]), float(pos[1]))
             if not panorama is None:

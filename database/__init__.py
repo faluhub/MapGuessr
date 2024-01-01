@@ -8,7 +8,8 @@ schemas = [
 
 tables = [
     "CREATE TABLE `mapguessr`.`users` (`user_id` BIGINT NOT NULL, `guesses` BIGINT NULL DEFAULT 0, `correct` BIGINT NULL DEFAULT 0, `has_guessed` INT NULL DEFAULT 0, PRIMARY KEY (`user_id`), UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE)",
-    "CREATE TABLE `mapguessr`.`guilds` (`guild_id` BIGINT NOT NULL, `channel_id` BIGINT NULL, PRIMARY KEY (`guild_id`), UNIQUE INDEX `guild_id_UNIQUE` (`guild_id` ASC) VISIBLE)"
+    "CREATE TABLE `mapguessr`.`guilds` (`guild_id` BIGINT NOT NULL, `channel_id` BIGINT NULL, PRIMARY KEY (`guild_id`), UNIQUE INDEX `guild_id_UNIQUE` (`guild_id` ASC) VISIBLE)",
+    "CREATE TABLE `mapguessr`.`guesses` (`country` VARCHAR(100) NOT NULL, `guesses` BIGINT NULL, PRIMARY KEY (`country`), UNIQUE INDEX `country_UNIQUE` (`country` ASC) VISIBLE)"
 ]
 
 class Result:
@@ -29,26 +30,14 @@ class Result:
     
     @property
     def value_all_raw(self):
-        fetch = self._cur.fetchall()
-        if not fetch is None:
-            ret = []
-            for i in fetch:
-                ret.append(i[0])
-            return ret
-        else:
-            return None
+        return self._cur.fetchall()
 
     @property
     def value_all(self):
-        fetch = self.value_all_raw
+        fetch = self._cur.fetchall()
         if not fetch is None:
-            ret = []
-            for i in fetch:
-                if not i in ret:
-                    ret.append(i)
-            return ret
-        else:
-            return []
+            return [i[0] if len(i) == 1 else list(i) for i in fetch]
+        return []
 
 def connect():
     dotenv.load_dotenv()

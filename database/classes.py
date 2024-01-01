@@ -34,6 +34,10 @@ class User:
     def reset_guessed():
         update(f"UPDATE `mapguessr`.`users` SET `has_guessed` = '0'")
 
+    @staticmethod
+    def get_top_correct(amount: int):
+        return select(f"SELECT `user_id`, `guesses`, `correct` FROM `mapguessr`.`users` ORDER BY `correct` DESC LIMIT {amount}").value_all
+
 class Guild:
     def __init__(self, guild_id: int) -> None:
         self.guild_id = guild_id
@@ -57,3 +61,32 @@ class Guild:
     @staticmethod
     def get_all_channels():
         return select(f"SELECT `channel_id` FROM `mapguessr`.`guilds`").value_all
+
+class Guess:
+    def __init__(self, country: str) -> None:
+        self.country = country
+
+    def exists(self):
+        return not select(f"SELECT `country` FROM `mapguessr`.`guesses` WHERE country = '{self.country}'").value is None
+
+    def get_guesses(self):
+        return select(f"SELECT `guesses` FROM `mapguessr`.`guesses` WHERE country = '{self.country}'").value
+
+    def increment(self):
+        if self.exists():
+            guesses = self.get_guesses() + 1
+            update(f"UPDATE `mapguessr`.`guesses` SET `guesses` = '{guesses}' WHERE `country` = '{self.country}'")
+        else:
+            update(f"INSERT INTO `mapguessr`.`guesses` (`country`, `guesses`) VALUES ('{self.country}', '{1}')")
+
+    @staticmethod
+    def clear_guesses():
+        update("DELETE FROM `mapguessr`.`guesses`")
+
+    @staticmethod
+    def get_all_guesses():
+        return select("SELECT * FROM `mapguessr`.`guesses` ORDER BY `guesses` DESC LIMIT 5").value_all
+
+    @staticmethod
+    def get_total_guesses():
+        return select("SELECT SUM(`guesses`) FROM `mapguessr`.`guesses`").value
