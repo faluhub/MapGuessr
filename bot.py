@@ -14,7 +14,7 @@ start = datetime.now()
 
 location: maps.Location = None
 
-@tasks.loop(hours=2)
+@tasks.loop(minutes=30)
 async def challenge_loop():
     User.reset_guessed()
     channels = Guild.get_all_channels()
@@ -44,7 +44,8 @@ async def status_loop():
     diff: timedelta = challenge_loop.next_iteration.replace(tzinfo=None) - datetime.now()
     hours = diff.seconds / 60 > 60
     value = max(0, int(round(diff.seconds / 60 / 60 if hours else diff.seconds / 60)))
-    await bot.change_presence(activity=discord.Game(f"{value} {'Hour' if hours else 'Minute'}{'s' if not value == 1 else ''} Left..."))
+    message = f"{value} {'Hour' if hours else 'Minute'}{'s' if not value == 1 else ''} Left..." if not value == 0 else "Generating New Challenge..."
+    await bot.change_presence(activity=discord.Game(message))
 
 @bot.event
 async def on_connect():
