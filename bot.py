@@ -42,7 +42,8 @@ async def challenge_loop():
             rank += 1
             country, amount = guess
             rate = amount / total_guesses * 100
-            last += f"**{rank}.** *{country.capitalize()}* - `{amount}` *({rate}%)*\n"
+            emoji = "✅" if country.lower() == location.country.lower() else "❌"
+            last += f"**{rank}.** *{country.capitalize()}* {emoji} - `{amount}` *({rate}%)*\n"
 
     User.reset_guessed()
     Guess.clear_guesses()
