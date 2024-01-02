@@ -1,4 +1,4 @@
-import discord, os, dotenv, maps, traceback
+import discord, os, dotenv, maps, traceback, sys
 from discord import ApplicationContext, option
 from discord.ext import tasks
 from discord.utils import basic_autocomplete
@@ -18,6 +18,16 @@ start: datetime = datetime.now()
 location: maps.Location = None
 generating = False
 generated_at: datetime = None
+
+@tasks.loop(seconds=1)
+async def start_challenge_loop():
+    if challenge_loop.is_running():
+        return
+    now = datetime.now().minute
+    if now == 0 or now == 30:
+        challenge_loop.start()
+        print("Started challenge event loop")
+        start_challenge_loop.cancel()
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
@@ -40,7 +50,7 @@ async def challenge_loop():
             for guess in guesses:
                 rank += 1
                 country, amount = guess
-                rate = amount / total_guesses * 100
+                rate = round(amount / total_guesses * 100, 1)
                 emoji = "✅" if country.lower() == location.country.lower() else "❌"
                 last += f"**{rank}.** *{country.capitalize()}* {emoji} - `{amount}` *({rate}%)*\n"
 
@@ -64,15 +74,19 @@ async def challenge_loop():
     channels = Guild.get_all_channels()
     for channel_id in channels:
         channel = bot.get_channel(channel_id)
-        try:
-            await channel.send(embed=embed, file=discord.File(path))
-        except:
-            traceback.print_exc()
+        if not channel is None:
+            try:
+                await channel.send(embed=embed, file=discord.File(path))
+            except:
+                pass
 
     generating = False
 
 @tasks.loop(seconds=10)
 async def status_loop():
+    if not challenge_loop.is_running():
+        return await bot.change_presence(activity=discord.Game("Waiting to restart..."))
+
     if challenge_loop.next_iteration is None:
         return
 
@@ -96,10 +110,23 @@ async def on_connect():
 async def on_ready():
     global start
 
-    challenge_loop.start()
+    start_challenge_loop.start()
     status_loop.start()
 
     print(f"Ready, took {(datetime.now() - start).seconds} second(s).")
+
+@bot.event
+async def on_error(event: str, *args, **kwargs):
+    _, error, _ = sys.exc_info()
+    if isinstance(error, discord.errors.NotFound):
+        return
+    traceback.print_exc()
+
+@bot.event
+async def on_application_command_error(_: ApplicationContext, error: Exception):
+    if isinstance(error, discord.errors.NotFound):
+        return
+    print("".join(traceback.format_exception(type(error), error, error.__traceback__)))
 
 @bot.slash_command(name="guess", description="Make your guess")
 @option(
