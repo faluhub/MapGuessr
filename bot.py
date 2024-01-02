@@ -147,7 +147,7 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
         return await ctx.followup.send("There is no country to guess right now!\nIf a challenge was sent previously, you might be getting this error because the bot has been restarted.")
     if user_db.has_guessed():
         return await ctx.followup.send("You've already made a guess for this location!")
-    if not country in maps.get_country_names():
+    if not country.lower() in [i.lower() for i in maps.get_country_names()]:
         return await ctx.followup.send("That is not a valid country!")
 
     correct = location.country.lower() == country.lower()
