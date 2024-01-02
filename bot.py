@@ -143,9 +143,11 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
     user_db = User(ctx.author.id)
 
     if location is None:
-        return await ctx.followup.send("There is no country to guess right now!")
+        return await ctx.followup.send("There is no country to guess right now!\nIf a challenge was sent previously, you might be getting this error because the bot has been restarted.")
     if user_db.has_guessed():
         return await ctx.followup.send("You've already made a guess for this location!")
+    if not country in maps.get_country_names():
+        return await ctx.followup.send("That is not a valid country!")
 
     correct = location.country.lower() == country.lower()
     Guess(country.lower()).increment()
@@ -153,13 +155,13 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
 
     if correct:
         embed = discord.Embed(
-            description=f"`{country}` is correct!\nYou now have {user_db.get_correct()} total correct guesses!",
+            description=f"`{country.lower().capitalize()}` is correct!\nYou now have {user_db.get_correct()} total correct guesses!",
             color=discord.Color.green()
         )
         return await ctx.followup.send(embed=embed)
 
     embed = discord.Embed(
-        description="That's incorrect.\nYou will no longer be able to guess for this challenge. :(",
+        description=f"{country.lower().capitalize()} is incorrect.\nYou will no longer be able to guess for this challenge. :(",
         color=discord.Color.red()
     )
     return await ctx.followup.send(embed=embed)
