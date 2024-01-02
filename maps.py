@@ -11,6 +11,10 @@ class Location:
         self.country = country
         self.image = image
         self.year = year
+    
+    def dump(self):
+        with open("./data/location.json", "w") as f:
+            json.dump({"country": self.country, "year": self.year}, f)
 
 def add_compass(pano: Image.Image, heading: float):
     base = Image.new(mode="RGBA", size=(64, 64))
@@ -50,7 +54,21 @@ def gen_country():
         for pos in positions:
             panorama = get_panorama(float(pos[0]), float(pos[1]))
             if not panorama is None:
-                return Location(country["name"], panorama[0], panorama[1])
+                location = Location(country["name"], panorama[0], panorama[1])
+                return location
 
 def get_country_names():
     return [country["name"] for country in countries]
+
+def get_old_location():
+    path = "./data/location.json"
+
+    if not os.path.exists(path):
+        return None
+
+    with open(path, "r") as f:
+        try:
+            data = json.load(f)
+            return Location(data["country"], Image.open("./data/challenge.jpg"), data["year"])
+        except:
+            return None

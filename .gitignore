@@ -2,3 +2,4 @@ __pycache__/
 .env
 challenge.jpg
 test.py
+location.json

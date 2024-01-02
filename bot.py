@@ -15,7 +15,7 @@ bot = discord.AutoShardedBot(
 )
 start: datetime = datetime.now()
 
-location: maps.Location = None
+location: maps.Location = maps.get_old_location()
 generating = False
 generated_at: datetime = None
 
