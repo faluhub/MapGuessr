@@ -17,7 +17,6 @@ start: datetime = datetime.now()
 
 location: maps.Location = maps.get_old_location()
 generating = False
-generated_at: datetime = None
 
 @tasks.loop(seconds=1)
 async def start_challenge_loop():
@@ -25,13 +24,13 @@ async def start_challenge_loop():
         return
     now = datetime.now().minute
     if now == 0 or now == 30:
-        challenge_loop.start()
         print("Started challenge event loop")
+        challenge_loop.start()
         start_challenge_loop.cancel()
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
-    global location, generating, generated_at, debug
+    global location, generating, debug
 
     if generating:
         return
@@ -58,7 +57,6 @@ async def challenge_loop():
     Guess.clear_guesses()
 
     location = maps.gen_country()
-    generated_at = datetime.now()
 
     path = "./data/challenge.jpg"
     location.image.save(path, format="jpeg")
@@ -67,7 +65,7 @@ async def challenge_loop():
         title="Country Challenge",
         description="Make your guess using `/guess`!" + last,
         color=discord.Color.green(),
-        timestamp=generated_at
+        timestamp=location.generated_at
     )
     embed.set_footer(text=f"Google ©️{location.year}")
 
@@ -84,11 +82,14 @@ async def challenge_loop():
 
 @tasks.loop(seconds=10)
 async def status_loop():
-    if not challenge_loop.is_running():
-        return await bot.change_presence(activity=discord.Game("Waiting to restart..."))
+    global location
 
-    if challenge_loop.next_iteration is None:
-        return
+    timestamp = challenge_loop.next_iteration
+
+    if timestamp is None:
+        if challenge_loop.is_running() or location is None:
+            return
+        timestamp = location.generated_at
 
     diff: timedelta = challenge_loop.next_iteration.replace(tzinfo=None) - datetime.now()
     value = max(0, int(round(diff.seconds / 60)))
@@ -117,7 +118,7 @@ async def on_ready():
 
 @bot.event
 async def on_error(event: str, *args, **kwargs):
-    _, error, _ = sys.exc_info()
+    error = sys.exc_info()[1]
     if isinstance(error, discord.errors.NotFound):
         return
     traceback.print_exc()
@@ -168,19 +169,22 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
 
 @bot.slash_command(name="send", description="Re-send the ongoing challenge")
 async def send_cmd(ctx: ApplicationContext):
-    global generating, generated_at
+    global generating, location
+
     await ctx.defer()
+    
     if generating:
         embed = discord.Embed(
             description="A new challenge is being generated right now, so you cannot use this command.",
             color=discord.Color.red()
         )
         return await ctx.followup.send(embed=embed)
+
     embed = discord.Embed(
         title="Country Challenge",
         description="Make your guess using `/guess`!",
         color=discord.Color.green(),
-        timestamp=generated_at
+        timestamp=location.generated_at
     )
     embed.set_footer(text=f"Google ©️{location.year}")
     return await ctx.followup.send(embed=embed, file=discord.File("./data/challenge.jpg"))

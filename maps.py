@@ -1,4 +1,5 @@
 import requests, random, json, streetview, os, dotenv, projection
+from datetime import datetime
 from PIL import Image
 
 dotenv.load_dotenv()
@@ -7,14 +8,19 @@ countries = json.load(open("./data/countries.json"))
 api_key = os.environ["GOOGLE_API_KEY"]
 
 class Location:
-    def __init__(self, country: str, image: Image.Image, year: int) -> None:
+    def __init__(self, country: str, image: Image.Image, year: int, generated_at: datetime) -> None:
         self.country = country
         self.image = image
         self.year = year
+        self.generated_at = generated_at
     
     def dump(self):
         with open("./data/location.json", "w") as f:
-            json.dump({"country": self.country, "year": self.year}, f)
+            json.dump({
+                "country": self.country,
+                "year": self.year,
+                "generated_at": datetime.timestamp(self.generated_at)
+            }, f)
 
 def add_compass(pano: Image.Image, heading: float):
     base = Image.new(mode="RGBA", size=(64, 64))
@@ -54,7 +60,8 @@ def gen_country():
         for pos in positions:
             panorama = get_panorama(float(pos[0]), float(pos[1]))
             if not panorama is None:
-                location = Location(country["name"], panorama[0], panorama[1])
+                location = Location(country["name"], panorama[0], panorama[1], datetime.now())
+                location.dump()
                 return location
 
 def get_country_names():
@@ -69,6 +76,6 @@ def get_old_location():
     with open(path, "r") as f:
         try:
             data = json.load(f)
-            return Location(data["country"], Image.open("./data/challenge.jpg"), data["year"])
+            return Location(data["country"], Image.open("./data/challenge.jpg"), data["year"], datetime.fromtimestamp(data["generated_at"]))
         except:
             return None
