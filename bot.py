@@ -4,9 +4,10 @@ from discord.ext import tasks
 from discord.utils import basic_autocomplete
 from database.classes import User, Guild, Guess
 from datetime import datetime, timedelta
+from svdl import Location
 
 dotenv.load_dotenv()
-debug = bool(os.environ.get("DEBUG", False))
+debug = int(os.environ.get("DEBUG", 0)) == 1
 debug_guild = 1018128160962904114
 bot = discord.AutoShardedBot(
     intents=discord.Intents.default(),
@@ -15,22 +16,12 @@ bot = discord.AutoShardedBot(
 )
 start: datetime = datetime.now()
 
-location: maps.Location = maps.get_old_location()
+location: Location = None
 generating = False
-
-@tasks.loop(seconds=1)
-async def start_challenge_loop():
-    if challenge_loop.is_running():
-        return
-    now = datetime.now().minute
-    if now == 0 or now == 30:
-        print("Started challenge event loop")
-        challenge_loop.start()
-        start_challenge_loop.cancel()
 
 @tasks.loop(minutes=30)
 async def challenge_loop():
-    global location, generating, debug
+    global location, generating
 
     if generating:
         return
@@ -38,7 +29,7 @@ async def challenge_loop():
 
     last = ""
     if not location is None:
-        last = f"\nThe last country was `{location.country}`."
+        last = f"\nThe last country was `{location['country']}`."
         total_guesses = Guess.get_total_guesses()
         guesses = Guess.get_all_guesses()
         if not total_guesses is None and not guesses is None:
@@ -50,49 +41,47 @@ async def challenge_loop():
                 rank += 1
                 country, amount = guess
                 rate = round(amount / total_guesses * 100, 1)
-                emoji = "✅" if country.lower() == location.country.lower() else "❌"
+                emoji = "✅" if country.lower() == location["country"].lower() else "❌"
                 last += f"**{rank}.** *{country.capitalize()}* {emoji} - `{amount}` *({rate}%)*\n"
 
     User.reset_guessed()
     Guess.clear_guesses()
 
-    location = maps.gen_country()
+    location = await maps.gen_country()
 
-    path = "./data/challenge.jpg"
-    location.image.save(path, format="jpeg")
+    path = "./data/challenge.png"
+    location["image"].save(path, format="png")
+    file = discord.File(path, filename="challenge.png")
 
     embed = discord.Embed(
         title="Country Challenge",
         description="Make your guess using `/guess`!" + last,
         color=discord.Color.green(),
-        timestamp=location.generated_at
+        timestamp=location["timestamp"]
     )
-    embed.set_footer(text=f"Google ©️{location.year}")
+    embed.set_image(url="attachment://challenge.png")
+    embed.set_footer(text=f"Google ©️{location['year']}")
 
     channels = Guild.get_all_channels()
     for channel_id in channels:
         channel = bot.get_channel(channel_id)
         if not channel is None:
             try:
-                await channel.send(embed=embed, file=discord.File(path))
+                await channel.send(embed=embed, file=file)
             except:
                 pass
 
     generating = False
 
-@tasks.loop(seconds=10)
+@tasks.loop(seconds=1)
 async def status_loop():
     global location
 
-    timestamp = challenge_loop.next_iteration
+    if not challenge_loop.is_running() or location is None:
+        return await bot.change_presence(activity=discord.Game("Waiting To Start..."))
 
-    if timestamp is None:
-        if challenge_loop.is_running() or location is None:
-            return
-        timestamp = location.generated_at
-
-    diff: timedelta = challenge_loop.next_iteration.replace(tzinfo=None) - datetime.now()
-    value = max(0, int(round(diff.seconds / 60)))
+    diff: timedelta = datetime.now() - location["timestamp"]
+    value = max(0, 30 - int(round(diff.seconds / 60)))
 
     message = f"{value} Minute{'s' if not value == 1 else ''} Left..." if not value == 0 else "Generating New Challenge..."
     return await bot.change_presence(activity=discord.Game(message))
@@ -111,8 +100,8 @@ async def on_connect():
 async def on_ready():
     global start
 
-    start_challenge_loop.start()
     status_loop.start()
+    challenge_loop.start()
 
     print(f"Ready, took {(datetime.now() - start).seconds} second(s).")
 
@@ -150,7 +139,7 @@ async def guess_cmd(ctx: ApplicationContext, country: str):
     if not country.lower() in [i.lower() for i in maps.get_country_names()]:
         return await ctx.followup.send("That is not a valid country!")
 
-    correct = location.country.lower() == country.lower()
+    correct = location["country"].lower() == country.lower()
     Guess(country.lower()).increment()
     user_db.increment_guesses(correct)
 
@@ -180,14 +169,16 @@ async def send_cmd(ctx: ApplicationContext):
         )
         return await ctx.followup.send(embed=embed)
 
+    file = discord.File("./data/challenge.png", filename="challenge.png")
     embed = discord.Embed(
         title="Country Challenge",
         description="Make your guess using `/guess`!",
         color=discord.Color.green(),
-        timestamp=location.generated_at
+        timestamp=location["timestamp"]
     )
-    embed.set_footer(text=f"Google ©️{location.year}")
-    return await ctx.followup.send(embed=embed, file=discord.File("./data/challenge.jpg"))
+    embed.set_image(url="attachment://challenge.png")
+    embed.set_footer(text=f"Google ©️{location['year']}")
+    return await ctx.followup.send(embed=embed, file=file)
 
 @bot.slash_command(name="user", description="View a user's stats")
 @option(
@@ -294,7 +285,10 @@ async def next_cmd(ctx: ApplicationContext):
     await ctx.defer()
     if not ctx.author.id in bot.owner_ids:
         return await ctx.followup.send("You have to be an owner of the bot to be able to run this command.")
-    await challenge_loop.coro()
+    if not challenge_loop.is_running():
+        challenge_loop.start()
+    else:
+        await challenge_loop.coro()
     return await ctx.followup.send("Skipped to next challenge.")
 
 def run():

@@ -1,26 +1,12 @@
-import requests, random, json, streetview, os, dotenv, projection
+import requests, random, json, svapi, os, dotenv
 from datetime import datetime
 from PIL import Image
+from svdl import Location
 
 dotenv.load_dotenv()
 
 countries = json.load(open("./data/countries.json"))
 api_key = os.environ["GOOGLE_API_KEY"]
-
-class Location:
-    def __init__(self, country: str, image: Image.Image, year: int, generated_at: datetime) -> None:
-        self.country = country
-        self.image = image
-        self.year = year
-        self.generated_at = generated_at
-    
-    def dump(self):
-        with open("./data/location.json", "w") as f:
-            json.dump({
-                "country": self.country,
-                "year": self.year,
-                "generated_at": datetime.timestamp(self.generated_at)
-            }, f)
 
 def add_compass(pano: Image.Image, heading: float):
     base = Image.new(mode="RGBA", size=(64, 64))
@@ -39,43 +25,33 @@ def get_positions(country: int):
     text = requests.get(url).text
     return json.loads(text.replace("while(1);", ""))["points"]
 
-def get_panorama(lat: float, lon: float):
-    results = streetview.panoids(lat=lat, lon=lon)
+async def get_panorama(lat: float, lon: float):
+    results = svapi.pano_ids(lat, lon)
     if len(results) == 0:
-        return None
-    panorama = None
+        return None, None
+    pano = None
     for p in results:
         if "year" in p:
-            if panorama is None or int(p["year"]) > int(panorama["year"]):
-                panorama = p
-    pano_img = streetview.download_panorama(panoid=panorama["panoid"])
-    projected = projection.Equirectangular(pano_img).get_perspective(100, panorama["heading"] - 180, -10, 1920, 1080)
-    return add_compass(projected, panorama["heading"]), panorama["year"]
+            if pano is None or int(p["year"]) > int(pano["year"]):
+                pano = p
+    loc = Location(pano["panoid"], pano["heading"])
+    image = await loc.download()
+    return add_compass(image, pano["heading"]), pano["year"]
 
-def gen_country():
+async def gen_country():
     country = countries[random.randint(0, len(countries) - 1)]
     while True:
         positions = get_positions(country["id"])
         random.shuffle(positions)
         for pos in positions:
-            panorama = get_panorama(float(pos[0]), float(pos[1]))
-            if not panorama is None:
-                location = Location(country["name"], panorama[0], panorama[1], datetime.now())
-                location.dump()
-                return location
+            image, year = await get_panorama(float(pos[0]), float(pos[1]))
+            if not image is None and not year is None:
+                return {
+                    "country": country["name"],
+                    "image": image,
+                    "year": year,
+                    "timestamp": datetime.now()
+                }
 
 def get_country_names():
     return [country["name"] for country in countries]
-
-def get_old_location():
-    path = "./data/location.json"
-
-    if not os.path.exists(path):
-        return None
-
-    with open(path, "r") as f:
-        try:
-            data = json.load(f)
-            return Location(data["country"], Image.open("./data/challenge.jpg"), data["year"], datetime.fromtimestamp(data["generated_at"]))
-        except:
-            return None

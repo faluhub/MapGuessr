@@ -14,7 +14,7 @@ def _panoids_data(lat, lon):
     url = _panoids_url(lat, lon)
     return requests.get(url, proxies=None)
 
-def panoids(lat, lon, closest=False):
+def pano_ids(lat, lon, closest=False):
     resp = _panoids_data(lat, lon)
     pans = re.findall(r"\[2,\"(.+?)\"\].+?\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+)\],\[-?[0-9]+.[0-9]+\],\[(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+)", resp.text)
     pans = [{
@@ -51,41 +51,3 @@ def panoids(lat, lon, closest=False):
         return [pans[i] for i in range(len(dates))]
     else:
         return pans
-
-def tiles_info(panoid, zoom=5):
-    image_url = "https://cbk0.google.com/cbk?output=tile&panoid={}&zoom={}&x={}&y={}"
-    coord = list(itertools.product(range(26), range(13)))
-    tiles = [(x, y, "%s_%dx%d.jpg" % (panoid, x, y), image_url.format(panoid, zoom, x, y)) for x, y in coord]
-    return tiles
-
-def download_panorama(panoid, zoom=5):
-    tile_width = 512
-    tile_height = 512
-    img_w, img_h = 416 * (2 ** zoom), 416 * (2 ** (zoom - 1))
-    tiles = tiles_info(panoid, zoom=zoom)
-    valid_tiles = []
-    for i, tile in enumerate(tiles):
-        x, y, _, url = tile
-        if x * tile_width < img_w and y * tile_height < img_h:
-            while True:
-                try:
-                    response = requests.get(url, stream=True)
-                    break
-                except requests.ConnectionError:
-                    print("Connection error. Trying again in 2 seconds.")
-                    time.sleep(2)
-            valid_tiles.append(Image.open(BytesIO(response.content)))
-            del response
-
-    panorama = Image.new("RGB", (img_w, img_h))
-    i = 0
-    for x, y, _, url in tiles:
-        if x * tile_width < img_w and y * tile_height < img_h:
-            tile = valid_tiles[i]
-            i += 1
-            panorama.paste(im=tile, box=(x * tile_width, y * tile_height))
-    return panorama
-
-def delete_tiles(tiles, directory):
-    for _, _, fname, _ in tiles:
-        os.remove(directory + "/" + fname)
